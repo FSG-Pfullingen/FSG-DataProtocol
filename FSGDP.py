@@ -128,7 +128,7 @@ class Receiver(object):
                     self.looked = False
                 #sleep(0.0001)
             #Break if EOL is received
-            if recv_thing[1:] == 255:
+            if recv_thing[1:] == [True, True, True, True, True, True, True, True]:
                 if meta_incoming == False and meta_over == False:
                     meta_incoming = True
                 elif meta_incoming == True and meta_over == False:
@@ -138,9 +138,9 @@ class Receiver(object):
                     break
             else:
                 if meta_incoming == True:
-                    metadata.append(recv_thing[1:])
+                    metadata.append(int(''.join(recv_thing[1:]), 2))
                 else:
-                    self.daten.append(recv_thing[1:])
+                    self.daten.append(int(''.join(recv_thing[1:]), 2))
         return metadata, self.daten
 
     def make_hr(self):
