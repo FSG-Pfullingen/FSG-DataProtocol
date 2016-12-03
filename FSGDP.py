@@ -21,7 +21,7 @@ class Sender(object):
         '''
         GPIO.setwarnings(False)
         self.bit_length = "08b"
-        self.adress = "00010010"
+        self.adress = 23
         self.clock_pin = clock_pin
         self.data_pin = data_pin
         self.timing_duration = time_duration
@@ -32,7 +32,7 @@ class Sender(object):
     def send_data(self, data, duration):
         ''' Send one bit (1/0, High/Low), with duration
         '''
-        if data == "1":
+        if data == True:
             GPIO.output(self.data_pin, GPIO.HIGH)
             GPIO.output(self.clock_pin, GPIO.HIGH)
         else:
@@ -45,13 +45,13 @@ class Sender(object):
         
     def send_string(self, string_to_send, adress, progress=False):
         binary_list = []
-        binary_list.append("11111111")
+        binary_list.append(255)
         binary_list.append(adress)
         binary_list.append(self.adress)
-        binary_list.append("11111111")
+        binary_list.append(255)
         for char in string_to_send:
-            binary_list.append("%08d" % int(bin(ord(char))[2:]))
-        binary_list.append("11111111")
+            binary_list.append(ord(char))
+        binary_list.append(255)
         file_length = len(binary_list)
         print ("Length: " + str(file_length) + "byte")
         index = 0
@@ -65,9 +65,10 @@ class Sender(object):
                         print (str(percentage) + "%")
                 except ValueError:
                     print ("Error in indexing send object")
-            self.send_data("1", self.timing_duration)
-            for bit in element:
-                self.send_data(bit, self.timing_duration)
+            self.send_data(True, self.timing_duration)
+            element_string = format(element, '08b')
+            for bit in element_string:
+                self.send_data(bool(bit), self.timing_duration)
             GPIO.output(self.clock_pin, GPIO.LOW)
             sleep(self.timing_duration*2)
 
@@ -78,7 +79,7 @@ class Sender(object):
             eingabe = (input("Message: ") + "\n")
         if adress == "":
             adress = input("To Adress: ")
-        self.send_string(eingabe, adress)
+        self.send_string(eingabe, int(adress))
         print ("Finished!")
 
     def send_file(self, file_location, adress):
@@ -87,7 +88,7 @@ class Sender(object):
         f_target = open(file_location, "r")
         file_content = f_target.read()
         f_target.close()
-        self.send_string(file_content, adress)
+        self.send_string(file_content, int(adress))
 
 class Receiver(object):
     ''' The receiver for the FSG-DataProtocol
@@ -97,7 +98,7 @@ class Receiver(object):
         '''
         self.data_pin = data_pin
         self.clock_pin = clock_pin
-        self.adress = [0,0,0,0,0,0,0,1]
+        self.adress = 3
         self.daten = []
         self.looked = False
         print ("Setup...")
@@ -113,22 +114,21 @@ class Receiver(object):
         meta_over = False
         metadata = []
         while True:
-            recv_thing = [0, 0]
             recv_thing = []
             while len(recv_thing) <= 8:
                 if GPIO.input(self.clock_pin) == True and GPIO.input(self.data_pin) == True and self.looked == False:
-                    recv_thing.append(1)
+                    recv_thing.append(True)
                     self.looked = True
                     #print ("Received a 1")
                 elif GPIO.input(self.clock_pin) == True and GPIO.input(self.data_pin) == False and self.looked == False:
-                    recv_thing.append(0)
+                    recv_thing.append(False)
                     self.looked = True
                     #print ("Received a 0")
                 elif GPIO.input(self.clock_pin) == False:
                     self.looked = False
                 #sleep(0.0001)
             #Break if EOL is received
-            if recv_thing[1:] == [1,1,1,1,1,1,1,1]:
+            if recv_thing[1:] == 255:
                 if meta_incoming == False and meta_over == False:
                     meta_incoming = True
                 elif meta_incoming == True and meta_over == False:
