@@ -19,6 +19,7 @@ class Sender(object):
     def __init__(self, data_pin=13, clock_pin=15, time_duration=0.005):
         ''' Initializes the sender and sets up the pins
         '''
+        GPIO.setwarnings(False)
         self.clock_pin = clock_pin
         self.data_pin = data_pin
         self.timing_duration = time_duration
