@@ -16,12 +16,9 @@ from time import sleep
 class Sender(object):
     ''' The sender-class to send data with the FSG-DataProtocol
     '''
-    def help(self):
-		print "Aviable commands: \n \n __init__() |optional: data_pin, clock_pin, time_duration | initializing \n \n send_data(data) | optional: duration | send binary data \n \n send(data) | optional: none | sends strings \n  \n send_file(file_location) | optional: none | sends fles"
     def __init__(self, data_pin=13, clock_pin=15, time_duration=0.005):
         ''' Initializes the sender and sets up the pins
         '''
-        GPIO.setwarnings(False)
         self.clock_pin = clock_pin
         self.data_pin = data_pin
         self.timing_duration = time_duration
