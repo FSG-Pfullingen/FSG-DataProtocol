@@ -17,7 +17,9 @@ class Sender(object):
     ''' The sender-class to send data with the FSG-DataProtocol
     '''
     def help(self):
-		print "Aviable commands: \n \n __init__() |optional: data_pin, clock_pin, time_duration | initializing \n \n send_data(data) | optional: duration | send binary data \n \n send(data) | optional: none | sends strings \n  \n send_file(file_location) | optional: none | sends fles \n \n close_connection() | optional: none | close the connection and clear all pins \n \n \n \n"
+		'''help for usage of FSGDP-Sender
+		'''
+		print "Available commands: \n \n __init__() | optional: data_pin, clock_pin, time_duration | initializing \n \n send_data(data) | optional: duration | send binary data \n \n send(data) | optional: none | send strings \n  \n send_file(file_location) | optional: none | send files \n \n close_connection() | optional: none | close the connection and clear all pins \n \n \n \n"
     def __init__(self, data_pin=13, clock_pin=15, time_duration=0.005):
         ''' Initializes the sender and sets up the pins
         '''
@@ -104,8 +106,9 @@ class Receiver(object):
     ''' The receiver for the FSG-DataProtocol
     '''
     def help(self):
-		print "Available comands: \n \n __init__() | optional: data_pin, clock_pin | initializing \n \n receive() | optional: end_with_eol (break if receive eol) | receive data \n \n make_hr() | optional: none | show received data \n \n write_to_file(target_file) | optional: none | write received data to a file \n \n \n \n"
-    
+		print "Available commands: \n \n __init__() | optional: data_pin, clock_pin | initializing \n \n receive() | optional: end_with_eol (break if receive eol) | receive data \n \n make_hr() | optional: none | show received data \n \n write_to_file(target_file) | optional: none | write received data to a file  \n \n close_connection() | optional: none | close the connection and clear all pins \n \n \n \n"
+		'''help for usage of FSGDP-Receiver
+		'''
     def __init__(self, data_pin=16, clock_pin=18):
         '''Sets the board up and configures the pins
         '''
