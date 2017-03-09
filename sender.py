@@ -1,8 +1,10 @@
 import FSGDP
 
 Sender=FSGDP.Sender()
-Sender.__init__()
+Empf=FSGDP.Receiver()
+
 Sender.help()
+Empf.help()
 
 
 
