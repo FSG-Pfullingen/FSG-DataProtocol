@@ -6,8 +6,8 @@
     FSG Pfullingen Computer Science Club 2017
     -----------
 
-    The Module for the FSG-DataProtocol, used for
-    Sender and Receiver, that's why we used classes
+    The module for the FSG-DataProtocol, used for
+    sender and receiver, that's why we used classes
 '''
 
 import RPi.GPIO as GPIO
@@ -17,7 +17,7 @@ class Sender(object):
     ''' The sender-class to send data with the FSG-DataProtocol
     '''
     def __init__(self, data_pin=13, clock_pin=15, time_duration=0.005):
-        ''' Initializes the Sender and sets up the Pins
+        ''' Initializes the sender and sets up the pins
         '''
         self.clock_pin = clock_pin
         self.data_pin = data_pin
@@ -40,7 +40,7 @@ class Sender(object):
         sleep(duration)
 
     def send(self, eingabe=""):
-        ''' Sends a String with the send_data function (after conversion to binary)
+        ''' Sends a string with the send_data function (after conversion to binary)
         '''
         binary_list = []
         if eingabe == "":
@@ -84,10 +84,10 @@ class Sender(object):
         print "Finished"
 
 class Receiver(object):
-    ''' The Receiver for the FSG-DataProtocol
+    ''' The receiver for the FSG-DataProtocol
     '''
     def __init__(self, data_pin=16, clock_pin=18):
-        '''Sets the Board up and configures the pins
+        '''Sets the board up and configures the pins
         '''
         self.data_pin = data_pin
         self.clock_pin = clock_pin
@@ -99,7 +99,7 @@ class Receiver(object):
         GPIO.setup(self.clock_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     def receive(self, end_with_eol=True):
-        ''' Receives the incoming Data and stores it in al list.
+        ''' Receives the incoming data and stores it in al list.
             To see it, use 'make_HR()'
         '''
         while True:
@@ -131,7 +131,7 @@ class Receiver(object):
                 break
 
     def make_hr(self):
-        ''' Prints the received data to the Command Line
+        ''' Prints the received data to the command line
         '''
         satz = ""
         for recv_byte in self.daten:
@@ -172,6 +172,6 @@ class Receiver(object):
         return satz
 
 def close_connection():
-    ''' Closes the Connection
+    ''' Closes the connection
     '''
     GPIO.cleanup()
