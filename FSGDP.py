@@ -1,4 +1,12 @@
-''' The Module for the FSG-DataProtocol, used for
+''' 
+    MIT License
+    Copyright (c) 2017 Peter Stengl
+    [more info: see LICENSE file]
+    -----------
+    FSG Pfullingen Computer Science Club 2017
+    -----------
+
+    The Module for the FSG-DataProtocol, used for
     Sender and Receiver, that's why we used classes
 '''
 
