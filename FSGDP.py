@@ -40,13 +40,23 @@ class Sender(object):
         for character in eingabe:
             c_binary = format(ord(character), "08b")
             binary_list.append(c_binary)
-        print binary_list
+        file_length = len(binary_list)
+        print "Length: " + str(file_length) + "byte"
+        index = 0
         for element in binary_list:
+            try:
+                index += 1
+                percentage = int((float(index) / float(file_length)) * 100.0)
+                if percentage % 10 == 0:
+                    print str(percentage) + "%"
+            except ValueError:
+                print "Error in indexing send object"
             self.send_data("1", self.timing_duration)
             for bit in element:
                 self.send_data(bit, self.timing_duration)
             GPIO.output(self.clock_pin, GPIO.LOW)
             sleep(self.timing_duration)
+        print "Finished!"
 
     def send_file(self, file_location):
         ''' Does the same as send, except it sends a file instead of plain text
@@ -55,14 +65,19 @@ class Sender(object):
         file_content = f_target.read()
         file_length = len(file_content)
         f_target.close()
-        print file_length
-        print "Sending :[",
+        print "Lenght: " + str(file_length) + "bytes"
+        index = 0
+        looked = False
+        print "Progress:"
         for character in file_content:
             try:
-                index = file_content.index(character)
-                percentage = int((index / file_length) * 100)
-                if percentage % 10:
-                    print "#",
+                index += 1
+                percentage = int((float(index) / float(file_length)) * 100.0)
+                if percentage % 10 == 0 and looked == False:
+                    print str(percentage) + "%"
+                    looked = True
+                else:
+                    looked = False
             except ValueError:
                 print "Error in indexing send object"
             self.send_data("1", self.timing_duration)
@@ -72,7 +87,6 @@ class Sender(object):
                 self.send_data(bit, self.timing_duration)
             GPIO.output(self.clock_pin, GPIO.LOW)
             sleep(self.timing_duration)
-        print "]"
         print "Finished"
 
 class Receiver(object):
@@ -98,17 +112,17 @@ class Receiver(object):
             recv_thing = [0, 0]
             recv_thing = []
             while len(recv_thing) <= 8:
-                if GPIO.input(self.clock_pin) and GPIO.input(self.data_pin) and not self.looked:
+                if GPIO.input(self.clock_pin) == True and GPIO.input(self.data_pin) == True and self.looked == False:
                     recv_thing.append(1)
                     self.looked = True
                     #print "Received a 1"
-                elif GPIO.input(self.clock_pin) and GPIO.input(self.data_pin) and not self.looked:
+                elif GPIO.input(self.clock_pin) == True and GPIO.input(self.data_pin) == False and self.looked == False:
                     recv_thing.append(0)
                     self.looked = True
                     #print "Received a 0"
-                elif GPIO.input(self.clock_pin) is not True:
+                elif GPIO.input(self.clock_pin) == False:
                     self.looked = False
-                sleep(0.000000001)
+                sleep(0.0001)
             self.daten.append(recv_thing[1:])
             #Break if EOL is received
             string_of_recv = str(recv_thing[1:])
@@ -139,7 +153,7 @@ class Receiver(object):
             #print "Character:" + str(buchstabe)
             satz += str(buchstabe)
             #print "Satz:" + str(satz)
-        return satz
+        print satz
 
     def write_to_file(self, target_file):
         ''' Writes the received data to a file specified in target_file
