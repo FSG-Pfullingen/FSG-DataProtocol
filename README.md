@@ -1,4 +1,4 @@
-# FSG-DataProtocol
+# FSG-DataProtocol [![GitHub version](https://badge.fury.io/gh/GQdeltex%2FFSG-DataProtocol.svg)](https://badge.fury.io/gh/GQdeltex%2FFSG-DataProtocol)
 The Data-Transfer-Protocol made by the [FSG-Pfullingen](http://fsg-pfullingen.de/) Computer Science Club 2017.
 
 This Library is made, so it only uses 2 wires to communicate (ok, actually you need 4 to make it work in both directions, but to send you only need 2).
