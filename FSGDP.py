@@ -20,6 +20,8 @@ class Sender(object):
         ''' Initializes the sender and sets up the pins
         '''
         GPIO.setwarnings(False)
+        self.bit_length = "08b"
+        self.adress = ""
         self.clock_pin = clock_pin
         self.data_pin = data_pin
         self.timing_duration = time_duration
@@ -39,19 +41,20 @@ class Sender(object):
         GPIO.output(self.clock_pin, GPIO.LOW)
         GPIO.output(self.data_pin, GPIO.LOW)
         sleep(duration)
-
-    def send(self, eingabe=""):
-        ''' Sends a string with the send_data function (after conversion to binary)
-        '''
+        
+    def send_string(self, string_to_send, adress):
         binary_list = []
-        if eingabe == "":
-            eingabe = (raw_input("Message: ") + "\n")
-        for character in eingabe:
-            c_binary = format(ord(character), "08b")
+        binary_list.append("11111111")
+        binary_list.append(adress)
+        binary_list.append("11111111")
+        for character in string_to_send:
+            c_binary = format(ord(character), self.bit_length)
             binary_list.append(c_binary)
+        binary_list.append("11111111")
         file_length = len(binary_list)
         print "Length: " + str(file_length) + "byte"
         index = 0
+        print "Progress:"
         for element in binary_list:
             try:
                 index += 1
@@ -64,39 +67,25 @@ class Sender(object):
             for bit in element:
                 self.send_data(bit, self.timing_duration)
             GPIO.output(self.clock_pin, GPIO.LOW)
-            sleep(self.timing_duration)
+            sleep(self.timing_duration*2)
+
+    def send(self, eingabe="", adress=""):
+        ''' Sends a string with the send_data function (after conversion to binary)
+        '''
+        if eingabe == "":
+            eingabe = (raw_input("Message: ") + "\n")
+        if adress == "":
+            adress = raw_input("To Adress: ")
+        self.send_string(eingabe, adress)
         print "Finished!"
 
-    def send_file(self, file_location):
+    def send_file(self, file_location, adress):
         ''' Does the same as send, except it sends a file instead of plain text
         '''
         f_target = open(file_location, "r")
         file_content = f_target.read()
-        file_length = len(file_content)
         f_target.close()
-        print "Lenght: " + str(file_length) + "bytes"
-        index = 0
-        looked = False
-        print "Progress:"
-        for character in file_content:
-            try:
-                index += 1
-                percentage = int((float(index) / float(file_length)) * 100.0)
-                if percentage % 10 == 0 and looked == False:
-                    print str(percentage) + "%"
-                    looked = True
-                else:
-                    looked = False
-            except ValueError:
-                print "Error in indexing send object"
-            self.send_data("1", self.timing_duration)
-            c_binary = format(ord(character), "08b")
-            #print c_binary
-            for bit in c_binary:
-                self.send_data(bit, self.timing_duration)
-            GPIO.output(self.clock_pin, GPIO.LOW)
-            sleep(self.timing_duration)
-        print "Finished"
+        self.send_string(file_content, adress)
 
 class Receiver(object):
     ''' The receiver for the FSG-DataProtocol
@@ -106,6 +95,7 @@ class Receiver(object):
         '''
         self.data_pin = data_pin
         self.clock_pin = clock_pin
+        self.adress = [0,0,0,0,0,0,0,1]
         self.daten = []
         self.looked = False
         print "Setup..."
@@ -113,10 +103,12 @@ class Receiver(object):
         GPIO.setup(self.data_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.clock_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    def receive(self, end_with_eol=True):
+    def receive(self):
         ''' Receives the incoming data and stores it in al list.
             To see it, use 'make_HR()'
         '''
+        adress_incoming = False
+        adress_came_in = False
         while True:
             recv_thing = [0, 0]
             recv_thing = []
@@ -132,18 +124,30 @@ class Receiver(object):
                 elif GPIO.input(self.clock_pin) == False:
                     self.looked = False
                 sleep(0.0001)
-            self.daten.append(recv_thing[1:])
             #Break if EOL is received
-            string_of_recv = str(recv_thing[1:])
-            string_of_recv = string_of_recv.replace("[", '')
-            string_of_recv = string_of_recv.replace("]", '')
-            string_of_recv = string_of_recv.replace(",", '')
-            string_of_recv = string_of_recv.replace(" ", '')
-            #print string_of_recv
-            recv_int = int(string_of_recv, 2)
-            #print recv_int
-            if recv_int == 10 and end_with_eol is True:
-                break
+            print recv_thing, adress_came_in, adress_incoming
+            if adress_incoming == True and adress_came_in == False:
+                    is_for_adress = recv_thing[1:]
+                    print "Is for adress:" + str(is_for_adress)
+                    adress_came_in = True
+            if recv_thing[1:] == [1,1,1,1,1,1,1,1]:
+                if adress_came_in == True and adress_incoming == False:
+                    break
+                if adress_came_in == False and adress_incoming == False:
+                    print "Now is adress coming"
+                    adress_incoming = True
+                else:
+                    print "Adress over"
+                    adress_incoming = False
+            else:
+                self.daten.append(recv_thing[1:])
+        if is_for_adress == self.adress:
+            print "This Packet was for you!"
+        else:
+            print "This Packet wasn't for you!"
+            
+        print "Your adress:" + str(self.adress)
+        print "Dest. adress:" + str(is_for_adress)
 
     def make_hr(self):
         ''' Prints the received data to the command line
