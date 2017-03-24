@@ -11,7 +11,7 @@ Tested Successfully on two [Raspberry Pi 3 Model B](http://www.raspberrypi.org/p
 [Jonas](http://github.com/Electrojones), [Anton](http://github.com/PartyGuy01), [Peter](http://github.com/GQDeltex)
 
 
-
+:)
 
 
 :wink:
