@@ -21,7 +21,7 @@ class Sender(object):
         '''
         GPIO.setwarnings(False)
         self.bit_length = "08b"
-        self.adress = ""
+        self.adress = "00010010"
         self.clock_pin = clock_pin
         self.data_pin = data_pin
         self.timing_duration = time_duration
@@ -46,6 +46,8 @@ class Sender(object):
         binary_list = []
         binary_list.append("11111111")
         binary_list.append(adress)
+        binary_list.append(self.adress)
+        binary_list.append("Meta Data Text")
         binary_list.append("11111111")
         for character in string_to_send:
             c_binary = format(ord(character), self.bit_length)
@@ -125,29 +127,28 @@ class Receiver(object):
                     self.looked = False
                 sleep(0.0001)
             #Break if EOL is received
-            print recv_thing, adress_came_in, adress_incoming
-            if adress_incoming == True and adress_came_in == False:
-                    is_for_adress = recv_thing[1:]
-                    print "Is for adress:" + str(is_for_adress)
-                    adress_came_in = True
             if recv_thing[1:] == [1,1,1,1,1,1,1,1]:
-                if adress_came_in == True and adress_incoming == False:
-                    break
-                if adress_came_in == False and adress_incoming == False:
-                    print "Now is adress coming"
-                    adress_incoming = True
+                if meta_incoming == False and meta_over == False:
+                    meta_incoming = True
+                elif meta_incoming == True and meta_over == False:
+                    meta_incoming = False
+                    meta_over = True
                 else:
-                    print "Adress over"
-                    adress_incoming = False
+                    break
             else:
-                self.daten.append(recv_thing[1:])
-        if is_for_adress == self.adress:
-            print "This Packet was for you!"
-        else:
-            print "This Packet wasn't for you!"
-            
+                if meta_incoming == True:
+                    metadata.append(recv_thing[1:])
+                else:
+                    self.daten.append(recv_thing[1:])
+        print "Metadata:" + str(metadata)
         print "Your adress:" + str(self.adress)
         print "Dest. adress:" + str(is_for_adress)
+        if is_for_adress == self.adress:
+            print "This Packet was for you!"
+            return True
+        else:
+            print "This Packet wasn't for you!"
+            return False
 
     def make_hr(self):
         ''' Prints the received data to the command line
