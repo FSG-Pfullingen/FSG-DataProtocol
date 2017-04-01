@@ -21,7 +21,7 @@ class Sender(object):
         '''
         GPIO.setwarnings(False)
         self.bit_length = "08b"
-        self.adress = "100010010"
+        self.adress = "00010010"
         self.clock_pin = clock_pin
         self.data_pin = data_pin
         self.timing_duration = time_duration
@@ -45,13 +45,13 @@ class Sender(object):
         
     def send_string(self, string_to_send, adress):
         binary_list = []
-        binary_list.append("111111111")
-        binary_list.append("1" + adress)
+        binary_list.append("11111111")
+        binary_list.append(adress)
         binary_list.append(self.adress)
-        binary_list.append("111111111")
+        binary_list.append("11111111")
         for char in string_to_send:
-            binary_list.append("1" + "%08d" % int(bin(ord(char))[2:]))
-        binary_list.append("111111111")
+            binary_list.append("%08d" % int(bin(ord(char))[2:]))
+        binary_list.append("11111111")
         file_length = len(binary_list)
         print ("Length: " + str(file_length) + "byte")
         index = 0
