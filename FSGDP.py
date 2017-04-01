@@ -74,9 +74,9 @@ class Sender(object):
         ''' Sends a string with the send_data function (after conversion to binary)
         '''
         if eingabe == "":
-            eingabe = (raw_input("Message: ") + "\n")
+            eingabe = (input("Message: ") + "\n")
         if adress == "":
-            adress = raw_input("To Adress: ")
+            adress = input("To Adress: ")
         self.send_string(eingabe, adress)
         print ("Finished!")
 
@@ -127,7 +127,6 @@ class Receiver(object):
                     self.looked = False
                 sleep(0.0001)
             #Break if EOL is received
-            print (meta_incoming, meta_over)
             if recv_thing[1:] == [1,1,1,1,1,1,1,1]:
                 if meta_incoming == False and meta_over == False:
                     meta_incoming = True
@@ -138,17 +137,10 @@ class Receiver(object):
                     break
             else:
                 if meta_incoming == True:
-                    print ("Meta incoming: " + str(recv_thing[1:]))
                     metadata.append(recv_thing[1:])
                 else:
                     self.daten.append(recv_thing[1:])
-        print ("Metadata:" + str(metadata))
-        return self.daten, metadata
-        try:
-            print ("Came from:" + str(metadata[0]))
-            print ("Was for:" + str(metadata[1]))
-        except IndexError:
-            print "Not enough Data"
+        return metadata, self.daten
 
     def make_hr(self):
         ''' Prints the received data to the command line
