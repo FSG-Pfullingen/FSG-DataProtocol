@@ -138,10 +138,13 @@ class Receiver(object):
                     break
             else:
                 if meta_incoming == True:
+                    print ("Meta incoming")
                     metadata.append(recv_thing[1:])
                 else:
                     self.daten.append(recv_thing[1:])
         print ("Metadata:" + str(metadata))
+        print ("Came from:" + str(metadata[0])
+        print ("Was for:" + str(metadata[1])
 
     def make_hr(self):
         ''' Prints the received data to the command line
