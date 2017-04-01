@@ -138,13 +138,13 @@ class Receiver(object):
                     break
             else:
                 if meta_incoming == True:
-                    print ("Meta incoming")
-                    metadata.append(''.join(recv_thing[1:]))
+                    print ("Meta incoming: " + str(recv_thing[1:]))
+                    metadata.append(recv_thing[1:])
                 else:
                     self.daten.append(recv_thing[1:])
         print ("Metadata:" + str(metadata))
         try:
-            print ("Came from:" + str(metadata[0])
+            print ("Came from:" + str(metadata[0]))
             print ("Was for:" + str(metadata[1]))
         except IndexError:
             print "Not enough Data"
