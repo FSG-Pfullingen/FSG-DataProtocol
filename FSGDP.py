@@ -20,6 +20,8 @@ class Sender(object):
         ''' Initializes the sender and sets up the pins
         '''
         GPIO.setwarnings(False)
+        self.bit_length = "08b"
+        self.adress = "00010010"
         self.clock_pin = clock_pin
         self.data_pin = data_pin
         self.timing_duration = time_duration
@@ -30,73 +32,61 @@ class Sender(object):
     def send_data(self, data, duration):
         ''' Send one bit (1/0, High/Low), with duration
         '''
-        GPIO.output(self.clock_pin, GPIO.HIGH)
         if data == "1":
             GPIO.output(self.data_pin, GPIO.HIGH)
+            GPIO.output(self.clock_pin, GPIO.HIGH)
         else:
             GPIO.output(self.data_pin, GPIO.LOW)
+            GPIO.output(self.clock_pin, GPIO.HIGH)
         sleep(duration)
         GPIO.output(self.clock_pin, GPIO.LOW)
         GPIO.output(self.data_pin, GPIO.LOW)
         sleep(duration)
-
-    def send(self, eingabe=""):
-        ''' Sends a string with the send_data function (after conversion to binary)
-        '''
+        
+    def send_string(self, string_to_send, adress):
         binary_list = []
-        if eingabe == "":
-            eingabe = (raw_input("Message: ") + "\n")
-        for character in eingabe:
-            c_binary = format(ord(character), "08b")
-            binary_list.append(c_binary)
+        binary_list.append("11111111")
+        binary_list.append(adress)
+        binary_list.append(self.adress)
+        binary_list.append("11111111")
+        for char in string_to_send:
+            binary_list.append("%08d" % int(bin(ord(char))[2:]))
+        binary_list.append("11111111")
         file_length = len(binary_list)
-        print "Length: " + str(file_length) + "byte"
+        print ("Length: " + str(file_length) + "byte")
         index = 0
+        print ("Progress:")
         for element in binary_list:
             try:
                 index += 1
                 percentage = int((float(index) / float(file_length)) * 100.0)
                 if percentage % 10 == 0:
-                    print str(percentage) + "%"
+                    print (str(percentage) + "%")
             except ValueError:
-                print "Error in indexing send object"
+                print ("Error in indexing send object")
             self.send_data("1", self.timing_duration)
             for bit in element:
                 self.send_data(bit, self.timing_duration)
             GPIO.output(self.clock_pin, GPIO.LOW)
-            sleep(self.timing_duration)
-        print "Finished!"
+            sleep(self.timing_duration*2)
 
-    def send_file(self, file_location):
+    def send(self, eingabe="", adress=""):
+        ''' Sends a string with the send_data function (after conversion to binary)
+        '''
+        if eingabe == "":
+            eingabe = (input("Message: ") + "\n")
+        if adress == "":
+            adress = input("To Adress: ")
+        self.send_string(eingabe, adress)
+        print ("Finished!")
+
+    def send_file(self, file_location, adress):
         ''' Does the same as send, except it sends a file instead of plain text
         '''
         f_target = open(file_location, "r")
         file_content = f_target.read()
-        file_length = len(file_content)
         f_target.close()
-        print "Lenght: " + str(file_length) + "bytes"
-        index = 0
-        looked = False
-        print "Progress:"
-        for character in file_content:
-            try:
-                index += 1
-                percentage = int((float(index) / float(file_length)) * 100.0)
-                if percentage % 10 == 0 and looked == False:
-                    print str(percentage) + "%"
-                    looked = True
-                else:
-                    looked = False
-            except ValueError:
-                print "Error in indexing send object"
-            self.send_data("1", self.timing_duration)
-            c_binary = format(ord(character), "08b")
-            #print c_binary
-            for bit in c_binary:
-                self.send_data(bit, self.timing_duration)
-            GPIO.output(self.clock_pin, GPIO.LOW)
-            sleep(self.timing_duration)
-        print "Finished"
+        self.send_string(file_content, adress)
 
 class Receiver(object):
     ''' The receiver for the FSG-DataProtocol
@@ -106,17 +96,21 @@ class Receiver(object):
         '''
         self.data_pin = data_pin
         self.clock_pin = clock_pin
+        self.adress = [0,0,0,0,0,0,0,1]
         self.daten = []
         self.looked = False
-        print "Setup..."
+        print ("Setup...")
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.data_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.clock_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    def receive(self, end_with_eol=True):
+    def receive(self):
         ''' Receives the incoming data and stores it in al list.
             To see it, use 'make_HR()'
         '''
+        meta_incoming = False
+        meta_over = False
+        metadata = []
         while True:
             recv_thing = [0, 0]
             recv_thing = []
@@ -124,26 +118,29 @@ class Receiver(object):
                 if GPIO.input(self.clock_pin) == True and GPIO.input(self.data_pin) == True and self.looked == False:
                     recv_thing.append(1)
                     self.looked = True
-                    #print "Received a 1"
+                    #print ("Received a 1")
                 elif GPIO.input(self.clock_pin) == True and GPIO.input(self.data_pin) == False and self.looked == False:
                     recv_thing.append(0)
                     self.looked = True
-                    #print "Received a 0"
+                    #print ("Received a 0")
                 elif GPIO.input(self.clock_pin) == False:
                     self.looked = False
                 sleep(0.0001)
-            self.daten.append(recv_thing[1:])
             #Break if EOL is received
-            string_of_recv = str(recv_thing[1:])
-            string_of_recv = string_of_recv.replace("[", '')
-            string_of_recv = string_of_recv.replace("]", '')
-            string_of_recv = string_of_recv.replace(",", '')
-            string_of_recv = string_of_recv.replace(" ", '')
-            #print string_of_recv
-            recv_int = int(string_of_recv, 2)
-            #print recv_int
-            if recv_int == 10 and end_with_eol is True:
-                break
+            if recv_thing[1:] == [1,1,1,1,1,1,1,1]:
+                if meta_incoming == False and meta_over == False:
+                    meta_incoming = True
+                elif meta_incoming == True and meta_over == False:
+                    meta_incoming = False
+                    meta_over = True
+                else:
+                    break
+            else:
+                if meta_incoming == True:
+                    metadata.append(recv_thing[1:])
+                else:
+                    self.daten.append(recv_thing[1:])
+        return metadata, self.daten
 
     def make_hr(self):
         ''' Prints the received data to the command line
@@ -155,14 +152,14 @@ class Receiver(object):
             recv_string = recv_string.replace("]", '')
             recv_string = recv_string.replace(",", '')
             recv_string = recv_string.replace(" ", '')
-            #print "String:" + str(recv_string)
+            #print ("String:" + str(recv_string))
             recv_int = int(recv_string, 2)
-            #print "Integer:" + str(recv_int)
+            #print ("Integer:" + str(recv_int))
             buchstabe = chr(recv_int)
-            #print "Character:" + str(buchstabe)
+            #print ("Character:" + str(buchstabe))
             satz += str(buchstabe)
-            #print "Satz:" + str(satz)
-        print satz
+            #print ("Satz:" + str(satz))
+        print (satz)
 
     def write_to_file(self, target_file):
         ''' Writes the received data to a file specified in target_file
@@ -174,13 +171,13 @@ class Receiver(object):
             recv_string = recv_string.replace("]", '')
             recv_string = recv_string.replace(",", '')
             recv_string = recv_string.replace(" ", '')
-            #print "String:" + str(recv_string)
+            #print ("String:" + str(recv_string))
             recv_int = int(recv_string, 2)
-            #print "Integer:" + str(recv_int)
+            #print ("Integer:" + str(recv_int))
             buchstabe = chr(recv_int)
-            #print "Character:" + str(buchstabe)
+            #print ("Character:" + str(buchstabe))
             satz += str(buchstabe)
-            #print "Satz:" + str(satz)
+            #print ("Satz:" + str(satz))
         f_target = open(target_file, "w")
         f_target.write(satz)
         f_target.close()
