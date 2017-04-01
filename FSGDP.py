@@ -110,10 +110,10 @@ class Receiver(object):
         '''
         meta_incoming = False
         meta_over = False
+        metadata = []
         while True:
             recv_thing = [0, 0]
             recv_thing = []
-            metadata = []
             while len(recv_thing) <= 8:
                 if GPIO.input(self.clock_pin) == True and GPIO.input(self.data_pin) == True and self.looked == False:
                     recv_thing.append(1)
@@ -143,6 +143,7 @@ class Receiver(object):
                 else:
                     self.daten.append(recv_thing[1:])
         print ("Metadata:" + str(metadata))
+        return self.daten, metadata
         try:
             print ("Came from:" + str(metadata[0]))
             print ("Was for:" + str(metadata[1]))
