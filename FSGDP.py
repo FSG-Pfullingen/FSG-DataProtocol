@@ -32,11 +32,12 @@ class Sender(object):
     def send_data(self, data, duration):
         ''' Send one bit (1/0, High/Low), with duration
         '''
-        GPIO.output(self.clock_pin, GPIO.HIGH)
         if data == "1":
             GPIO.output(self.data_pin, GPIO.HIGH)
+            GPIO.output(self.clock_pin, GPIO.HIGH)
         else:
             GPIO.output(self.data_pin, GPIO.LOW)
+            GPIO.output(self.clock_pin, GPIO.HIGH)
         sleep(duration)
         GPIO.output(self.clock_pin, GPIO.LOW)
         GPIO.output(self.data_pin, GPIO.LOW)
@@ -112,6 +113,7 @@ class Receiver(object):
         while True:
             recv_thing = [0, 0]
             recv_thing = []
+            metadata = []
             while len(recv_thing) <= 8:
                 if GPIO.input(self.clock_pin) == True and GPIO.input(self.data_pin) == True and self.looked == False:
                     recv_thing.append(1)
