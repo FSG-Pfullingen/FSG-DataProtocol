@@ -16,7 +16,7 @@ from time import sleep
 class Sender(object):
     ''' The sender-class to send data with the FSG-DataProtocol
     '''
-    def __init__(self, data_pin=13, clock_pin=15, time_duration=0.005):
+    def __init__(self, data_pin=13, clock_pin=15, time_duration=0.00005):
         ''' Initializes the sender and sets up the pins
         '''
         GPIO.setwarnings(False)
@@ -43,7 +43,7 @@ class Sender(object):
         GPIO.output(self.data_pin, GPIO.LOW)
         sleep(duration)
         
-    def send_string(self, string_to_send, adress):
+    def send_string(self, string_to_send, adress, progress=False):
         binary_list = []
         binary_list.append("11111111")
         binary_list.append(adress)
@@ -55,15 +55,16 @@ class Sender(object):
         file_length = len(binary_list)
         print ("Length: " + str(file_length) + "byte")
         index = 0
-        print ("Progress:")
+        if progress: print ("Progress:")
         for element in binary_list:
-            try:
-                index += 1
-                percentage = int((float(index) / float(file_length)) * 100.0)
-                if percentage % 10 == 0:
-                    print (str(percentage) + "%")
-            except ValueError:
-                print ("Error in indexing send object")
+            if progress:
+                try:
+                    index += 1
+                    percentage = int((float(index) / float(file_length)) * 100.0)
+                    if percentage % 10 == 0:
+                        print (str(percentage) + "%")
+                except ValueError:
+                    print ("Error in indexing send object")
             self.send_data("1", self.timing_duration)
             for bit in element:
                 self.send_data(bit, self.timing_duration)
@@ -125,7 +126,7 @@ class Receiver(object):
                     #print ("Received a 0")
                 elif GPIO.input(self.clock_pin) == False:
                     self.looked = False
-                sleep(0.0001)
+                #sleep(0.0001)
             #Break if EOL is received
             if recv_thing[1:] == [1,1,1,1,1,1,1,1]:
                 if meta_incoming == False and meta_over == False:
@@ -160,6 +161,7 @@ class Receiver(object):
             satz += str(buchstabe)
             #print ("Satz:" + str(satz))
         print (satz)
+        return satz
 
     def write_to_file(self, target_file):
         ''' Writes the received data to a file specified in target_file
