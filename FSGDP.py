@@ -67,8 +67,9 @@ class Sender(object):
                     print ("Error in indexing send object")
             self.send_data(True, self.timing_duration)
             element_string = format(element, '08b')
+            print (element_string)
             for bit in element_string:
-                self.send_data(bool(bit), self.timing_duration)
+                self.send_data(bool(int(bit)), self.timing_duration)
             GPIO.output(self.clock_pin, GPIO.LOW)
             sleep(self.timing_duration*5)
 
