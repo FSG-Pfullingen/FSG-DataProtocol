@@ -128,6 +128,7 @@ class Receiver(object):
                     self.looked = False
                 #sleep(0.0001)
             #Break if EOL is received
+            #print (recv_thing)
             if recv_thing[1:] == [True, True, True, True, True, True, True, True]:
                 if meta_incoming == False and meta_over == False:
                     meta_incoming = True
@@ -143,10 +144,12 @@ class Receiver(object):
                     self.daten.append(int(''.join(['1' if x else '0' for x in recv_thing[1:]]), 2))
         return metadata, self.daten
 
-    def make_hr(self, input_list):
+    def make_hr(self, input_list=None):
         ''' Prints the received data to the command line
         '''
         satz = ""
+        if input_list == None:
+            input_list = self.daten
         for recv_byte in input_list:
             recv_string = str(recv_byte)
             """
