@@ -70,7 +70,7 @@ class Sender(object):
             for bit in element_string:
                 self.send_data(bool(bit), self.timing_duration)
             GPIO.output(self.clock_pin, GPIO.LOW)
-            sleep(self.timing_duration*2)
+            sleep(self.timing_duration*5)
 
     def send(self, eingabe="", adress=""):
         ''' Sends a string with the send_data function (after conversion to binary)
@@ -108,7 +108,7 @@ class Receiver(object):
 
     def receive(self):
         ''' Receives the incoming data and stores it in al list.
-            To see it, use 'make_HR()'
+            To see it, use 'make_hr()'
         '''
         meta_incoming = False
         meta_over = False
@@ -138,17 +138,18 @@ class Receiver(object):
                     break
             else:
                 if meta_incoming == True:
-                    metadata.append(int(''.join(recv_thing[1:]), 2))
+                    metadata.append(int(''.join(['1' if x else '0' for x in recv_thing[1:]]), 2))
                 else:
-                    self.daten.append(int(''.join(recv_thing[1:]), 2))
+                    self.daten.append(int(''.join(['1' if x else '0' for x in recv_thing[1:]]), 2))
         return metadata, self.daten
 
-    def make_hr(self):
+    def make_hr(self, input_list=self.daten):
         ''' Prints the received data to the command line
         '''
         satz = ""
-        for recv_byte in self.daten:
+        for recv_byte in input_list:
             recv_string = str(recv_byte)
+            """
             recv_string = recv_string.replace("[", '')
             recv_string = recv_string.replace("]", '')
             recv_string = recv_string.replace(",", '')
@@ -156,7 +157,8 @@ class Receiver(object):
             #print ("String:" + str(recv_string))
             recv_int = int(recv_string, 2)
             #print ("Integer:" + str(recv_int))
-            buchstabe = chr(recv_int)
+            """
+            buchstabe = chr(recv_byte)
             #print ("Character:" + str(buchstabe))
             satz += str(buchstabe)
             #print ("Satz:" + str(satz))
@@ -166,20 +168,7 @@ class Receiver(object):
     def write_to_file(self, target_file):
         ''' Writes the received data to a file specified in target_file
         '''
-        satz = ""
-        for recv_byte in self.daten:
-            recv_string = str(recv_byte)
-            recv_string = recv_string.replace("[", '')
-            recv_string = recv_string.replace("]", '')
-            recv_string = recv_string.replace(",", '')
-            recv_string = recv_string.replace(" ", '')
-            #print ("String:" + str(recv_string))
-            recv_int = int(recv_string, 2)
-            #print ("Integer:" + str(recv_int))
-            buchstabe = chr(recv_int)
-            #print ("Character:" + str(buchstabe))
-            satz += str(buchstabe)
-            #print ("Satz:" + str(satz))
+        satz = self.make_hr()
         f_target = open(target_file, "w")
         f_target.write(satz)
         f_target.close()
