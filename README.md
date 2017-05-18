@@ -13,3 +13,6 @@ Tested Successfully on two [Raspberry Pi 3 Model B](http://www.raspberrypi.org/p
 Telegram Bot under development ;-)
 
 :wink:
+
+
+...
