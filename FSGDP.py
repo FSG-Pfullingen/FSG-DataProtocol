@@ -16,7 +16,7 @@ from time import sleep
 class Sender(object):
     ''' The sender-class to send data with the FSG-DataProtocol
     '''
-    def __init__(self, data_pin=13, clock_pin=15, time_duration=0.00005):
+    def __init__(self, data_pin=13, clock_pin=15, time_duration=0.0001):
         ''' Initializes the sender and sets up the pins
         '''
         GPIO.setwarnings(False)
