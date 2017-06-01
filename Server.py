@@ -4,8 +4,8 @@ import logging
 import time
 
 adress_box = {
-    "00100101":(13, 15),
-    "00100111":(19, 21),
+    32:(13, 15),
+    42:(19, 21),
     }
 
 def get_data(pins):
