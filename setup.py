@@ -1,13 +1,16 @@
 import os
+import sys
 from shutil import copyfile
 
 if __name__ == "__main__":
     if not os.path.isfile("./FSGDP.py"):
-        print "This is not a file!"
+        print ("No valid FSGDP.py file found!")
         exit()
-    print "Copying files..."
+    print ("Copying files...")
     try:
-        copyfile("./FSGDP.py", "/usr/lib/python2.7/FSGDP.py")
-        print "Finished!"
-    except:
-        print "Could not copy files! (Maybe you need to run this program as administrator?)"
+        version = str(sys.version[:3])
+        path = "/usr/lib/python" + version
+        copyfile("./FSGDP.py", path + "/FSGDP.py")
+        print ("Finished installing to " + path + "!")
+    except IOError:
+        print ("Didn't work, maybe you need to run this as Administrator")

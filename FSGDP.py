@@ -143,7 +143,7 @@ class Receiver(object):
                     self.daten.append(int(''.join(['1' if x else '0' for x in recv_thing[1:]]), 2))
         return metadata, self.daten
 
-    def make_hr(self, input_list=self.daten):
+    def make_hr(self, input_list):
         ''' Prints the received data to the command line
         '''
         satz = ""
