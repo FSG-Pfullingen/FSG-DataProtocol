@@ -127,7 +127,7 @@ class Receiver(object):
                     #print ("Received a 0")
                 elif GPIO.input(self.clock_pin) == False:
                     self.looked = False
-                #sleep(0.0001)
+                sleep(0.00001)
             #Break if EOL is received
             #print (recv_thing)
             if recv_thing[1:] == [True, True, True, True, True, True, True, True]:
