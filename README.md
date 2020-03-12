@@ -8,7 +8,7 @@ This Library only needs 2 wires to communicate (ok, actually you need 4 to make 
 Tested Successfully on two [Raspberry Pi 3 Model B](http://www.raspberrypi.org/products/raspberry-pi-3-model-b/)'s.
 
 ## Credits
-[Jonas](https://github.com/Electrojones), [Anton](https://github.com/PartyGuy01), [Peter](https://github.com/GQDeltex)
+[Jonas](https://github.com/Electrojones), [Anton](https://github.com/AnTheMaker), [Peter](https://github.com/GQDeltex)
 
 Telegram Bot under development ;-)
 
