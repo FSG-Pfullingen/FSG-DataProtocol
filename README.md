@@ -1,4 +1,4 @@
-### [Official Website](https://fsg-pfullingen.github.io/fsg-dataprotocol-website)
+### [Official Website](https://fsg-pfullingen.github.io/fsg-dataprotocol-website/)
 # FSG-DataProtocol [![GitHub version](https://badge.fury.io/gh/GQdeltex%2FFSG-DataProtocol.svg)](https://badge.fury.io/gh/GQdeltex%2FFSG-DataProtocol) ![FSG](https://img.shields.io/badge/FSG-Data--Protocol-green.svg?style=flat-square)
 The Data-Transfer-Protocol made by the [FSG-Pfullingen](http://fsg-pfullingen.de/) Computer Science Club 2017.
 
